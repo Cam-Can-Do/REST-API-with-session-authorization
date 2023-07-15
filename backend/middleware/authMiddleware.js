@@ -6,6 +6,13 @@ const isAuth = (req, res, next) => {
     }
 }
 
+const isUnAuth = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return res.redirect('/')
+    }
+    next()
+}
+
 const isAdmin = (req, res, next) => {
     if (req.isAuthenticated() && req.user.admin) {
         next();
@@ -14,4 +21,4 @@ const isAdmin = (req, res, next) => {
     }
 }
 
-module.exports = {isAuth, isAdmin}
+module.exports = {isAuth, isUnAuth, isAdmin}

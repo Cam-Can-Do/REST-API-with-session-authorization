@@ -10,6 +10,7 @@ const registerUser = asyncHandler(async(req, res, next) => {
   
   // TODO: ADD HANDLING FOR EXISTING ACCOUNT
 
+
   const saltHash = genPassword(String(req.body.password));
   
   const salt = saltHash.salt;
@@ -27,16 +28,18 @@ const registerUser = asyncHandler(async(req, res, next) => {
       });
 
   // res.redirect('/login');
-  res.status(200).json({"message": "User successfully registered"})
+  //res.status(200).json({"message": "User successfully registered"})
+  res.redirect('/api/users/login')
 });
 
 
 // @desc    Login user
 // @route   POST /api/users/login
 // @access  Public
-const loginUser = asyncHandler(async(req, res, next) => {
-  passport.authenticate('local', { failureRedirect: '/login', successRedirect: '/me'})
-});
+const loginUser = passport.authenticate('local', {
+    failureRedirect: '/api/users/login',
+    successRedirect: '/api/users/me',
+  });
 
 
 
@@ -47,7 +50,7 @@ const loginUser = asyncHandler(async(req, res, next) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    return res.json({message: "My protected route!"})
+    res.json({message: "My protected route!"})
 })
 
 module.exports = {

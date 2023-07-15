@@ -11,14 +11,15 @@ const MAX_AGE = 1000 * 60 * 60 * 3 // 3 hours
 
 connectDB();
 
-const app = express()
-app.use(express.urlencoded({extended: false}));
-
 const sessionStore = new MongoDBStore({
     uri: process.env.MONGO_URI,
     collection: 'sessions',
 })
 
+const app = express()
+app.use(express.urlencoded({extended: false}));
+app.set('view-engine', 'ejs')
+app.use(errorHandler);
 app.use(
     session({
         secret: process.env.SECRET,
@@ -37,7 +38,6 @@ app.use(
     })
 )
 
-app.use(errorHandler);
 
 // PASSPORT
 require('./config/passport');

@@ -8,12 +8,15 @@ const customFields = {
     passwordField: 'password'
 };
 
-const verifyCallback = (username, password, done) => {
+const verifyCallback = (email, password, done) => {
 
-    User.findOne({ username })
+    User.findOne({ email })
         .then((user) => {
 
-            if (!user) { return done(null, false) }
+            if (!user) { 
+                console.log("user not found in passport!");
+                return done(null, false); }
+
             
             const isValid = validPassword(password, user.hash, user.salt);
             
