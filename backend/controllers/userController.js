@@ -50,16 +50,21 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async(req, res) => {
   const {email, password} = req.body
   
-  const user  = await User.findOne({email})
-  if (user) {
-    console.log("user found...")
+  if (!email || !password) {
+    res.status(400)
+    throw new Error('Please add all fields')
   }
 
+  const user  = await User.findOne({email})
   if (user && (await bcrypt.compare(password, user.password))) {
+    const userSession = { id: user.id, name: user.name, email: user.email };
+    req.session.user = userSession
+
     res.json({
       _id: user.id,
       name: user.name,
       email: user.email,
+      session: userSession
     })
   } else {
     res.status(400)
@@ -67,11 +72,17 @@ const loginUser = asyncHandler(async(req, res) => {
   }
 })
 
+// TODO: LOGOUT FUNCTION
+
 // @desc    Get user data
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-  res.status(200).json(req.user)
+    if (req.session.user) {
+      return res.json(req.session.user)
+    } else {
+      return res.status(401).json('unauthorize')
+  }
 })
 
 module.exports = {
