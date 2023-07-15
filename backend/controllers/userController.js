@@ -1,76 +1,45 @@
-const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
+const passport = require('passport')
 const User = require('../models/userModel')
+const genPassword = require('../lib/passwordUtils').genPassword;
 
 // @desc    Register new user
 // @route   POST /api/users
 // @access  Public
-const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body
+const registerUser = asyncHandler(async(req, res, next) => {
   
-    if (!name || !email || !password) {
-      res.status(400)
-      throw new Error('Please add all fields')
-    }
+  // TODO: ADD HANDLING FOR EXISTING ACCOUNT
+
+  const saltHash = genPassword(String(req.body.password));
   
-    // Check if user exists
-    const userExists = await User.findOne({ email })
-  
-    if (userExists) {
-      res.status(400)
-      throw new Error('User already exists')
-    }
-  
-    // Hash password
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, salt)
-  
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    })
-  
-    if (user) {
-      res.status(201).json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-      })
-    } else {
-      res.status(400)
-      throw new Error('Invalid user data')
-    }
-  })
+  const salt = saltHash.salt;
+  const hash = saltHash.hash;
+
+  const newUser = new User({
+      email: req.body.email,
+      hash: hash,
+      salt: salt,
+  });
+
+  newUser.save()
+      .then((user) => {
+          console.log(user);
+      });
+
+  // res.redirect('/login');
+  res.status(200).json({"message": "User successfully registered"})
+});
+
 
 // @desc    Login user
 // @route   POST /api/users/login
 // @access  Public
-const loginUser = asyncHandler(async(req, res) => {
-  const {email, password} = req.body
-  
-  if (!email || !password) {
-    res.status(400)
-    throw new Error('Please add all fields')
-  }
+const loginUser = asyncHandler(async(req, res, next) => {
+  passport.authenticate('local', { failureRedirect: '/login', successRedirect: '/me'})
+});
 
-  const user  = await User.findOne({email})
-  if (user && (await bcrypt.compare(password, user.password))) {
-    const userSession = { id: user.id, name: user.name, email: user.email };
-    req.session.user = userSession
 
-    res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      session: userSession
-    })
-  } else {
-    res.status(400)
-    throw new Error('Invalid credentials')
-  }
-})
+
 
 // TODO: LOGOUT FUNCTION
 
@@ -78,15 +47,11 @@ const loginUser = asyncHandler(async(req, res) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    if (req.session.user) {
-      return res.json(req.session.user)
-    } else {
-      return res.status(401).json('unauthorize')
-  }
+    return res.json({message: "My protected route!"})
 })
 
 module.exports = {
     registerUser,
     loginUser,
-    getMe
+    getMe,
 }

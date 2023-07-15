@@ -1,17 +1,17 @@
-const asyncHandler = require('express-async-handler')
-const User = require('../models/userModel')
-
-const protect = asyncHandler(async(req, res, next) => {
-
-    if (req.session.user) {
-        // User is authenticated, proceed to the next middleware or route handler
+const isAuth = (req, res, next) => {
+    if (req.isAuthenticated()) {
         next();
     } else {
-        // User is not authenticated, redirect or send an error response
-        // res.redirect('/login');
-        res.status(401)
-        throw new Error('Unauthorized.')
+        res.status(401).json({ message: 'You are not authorized to view this resource' });
     }
-});
+}
 
-module.exports = { protect };
+const isAdmin = (req, res, next) => {
+    if (req.isAuthenticated() && req.user.admin) {
+        next();
+    } else {
+        res.status(401).json({ message: 'You are not authorized to view this resource because you are not an admin.' });
+    }
+}
+
+module.exports = {isAuth, isAdmin}
