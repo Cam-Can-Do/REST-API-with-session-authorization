@@ -10,26 +10,43 @@ const registerUser = asyncHandler(async(req, res, next) => {
   
   // TODO: ADD HANDLING FOR EXISTING ACCOUNT
 
-
-  const saltHash = genPassword(String(req.body.password));
+  const {email, password} = req.body;
   
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Missing field in login.');
+  }
+
+  if (password.length < 8) {
+    res.status(400);
+    throw new Error('Password must be at least 8 characters.');
+  }
+
+  // Check for existing user
+  const userExists = await User.findOne({email})
+  if (userExists) {
+    res.status(400);
+    throw new Error('User already exists.');
+  }
+
+  // Generate hash and salt from password to be stored.
+  const saltHash = genPassword(String(password));
   const salt = saltHash.salt;
   const hash = saltHash.hash;
 
   const newUser = new User({
-      email: req.body.email,
-      hash: hash,
-      salt: salt,
+      email,
+      hash,
+      salt,
   });
 
-  newUser.save()
-      .then((user) => {
-          console.log(user);
-      });
-
-  // res.redirect('/login');
-  //res.status(200).json({"message": "User successfully registered"})
-  res.redirect('/api/users/login')
+  try {
+    newUser.save().then((user) => {
+      res.status(200).json({"message": "Register successful.", "user": user});
+    });
+  } catch (err) {
+    res.status(500).json({"error": err})
+  }
 });
 
 
@@ -37,14 +54,12 @@ const registerUser = asyncHandler(async(req, res, next) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = passport.authenticate('local', {
-    failureRedirect: '/api/users/login',
+    failureRedirect: '/api/users/login',  // TODO: Change since we can't GET login
     successRedirect: '/api/users/me',
   });
 
-
-
-
 // TODO: LOGOUT FUNCTION
+
 
 // @desc    Get user data
 // @route   GET /api/users/me

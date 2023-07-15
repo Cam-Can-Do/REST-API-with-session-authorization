@@ -9,9 +9,11 @@ const userSchema = mongoose.Schema(
     },
     hash: {
       type: String,
+      required: [true, 'Password hash was not generated']
     },
     salt: {
-      type: String
+      type: String,
+      required: [true, 'Password salt was not generated']
     },
     admin: {
       type: Boolean
