@@ -11,7 +11,6 @@ const port = process.env.PORT || 5000
 const SESSION_MAX_AGE = 1000 * 60 * 60 * 3 // 3 hours
 
 connectDB();
-
 const sessionStore = new MongoDBStore({
     uri: process.env.MONGO_URI,
     collection: 'sessions',
@@ -30,7 +29,7 @@ app.use(
         store: sessionStore,
         cookie: {
             maxAge: SESSION_MAX_AGE, // How long it takes for cookies to expire.
-            sameSite: false,
+            sameSite: true,
 
             // to turn on just in production
             secure: false, 

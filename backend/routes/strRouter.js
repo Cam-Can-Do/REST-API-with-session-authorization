@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {isAuth, isUnAuth, isAdmin} = require('../middleware/authMiddleware')
+const {isAuth, isUnAuth} = require('../middleware/authMiddleware')
 
 const {
     getStrs,

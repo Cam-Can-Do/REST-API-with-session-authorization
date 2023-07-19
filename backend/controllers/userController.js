@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async(req, res, next) => {
       res.status(200).json({"message": "Register successful.", "user": user});
     });
   } catch (err) {
-    res.status(500).json({"error": err})
+    res.status(500).json({"error": err});
   }
 });
 
@@ -54,22 +54,51 @@ const registerUser = asyncHandler(async(req, res, next) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = passport.authenticate('local', {
-    failureRedirect: '/api/users/login',  // TODO: Change since we can't GET login
-    successRedirect: '/api/strs/',
+    failureRedirect: '/api/users/loginFailure',  
+    successRedirect: '/api/users/loginSuccess',
   });
 
-// TODO: LOGOUT FUNCTION
+// @desc    Redirect for unsuccessful login
+// @route   GET /api/users/loginFailure
+// @access  Public
+const loginFailure = (req, res, next) => {
+  console.log('FAILURE!!')
+  res.status(401).json({message:'Invalid login.'});
+};
+
+// @desc    Redirect for successful login
+// @route   GET /api/users/loginSuccess
+// @access  Private
+const loginSuccess = (req, res, next) => {
+  res.status(200).json({message: "Login successful"});
+};
 
 
 // @desc    Get user data
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    res.json({message: req.user})
+    res.json({message: req.user});
 })
+
+// @desc    Logout user
+// @route   GET /api/users/logout
+// @access  Public
+const logOut = (req, res, next) => {
+	res.clearCookie('connect.sid'); 
+	req.logout(function(err) {
+		console.log(err)
+		req.session.destroy(function (err) { // destroys the session
+		res.status(200).json({message:"Successfully logged out."})
+		});
+	});
+};
 
 module.exports = {
     registerUser,
     loginUser,
+    loginSuccess,
+    loginFailure,
     getMe,
+    logOut,
 }
