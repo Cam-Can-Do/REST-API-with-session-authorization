@@ -7,9 +7,6 @@ const genPassword = require('../lib/passwordUtils').genPassword;
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async(req, res, next) => {
-  
-  // TODO: ADD HANDLING FOR EXISTING ACCOUNT
-
   const {email, password} = req.body;
   
   if (!email || !password) {
@@ -49,20 +46,18 @@ const registerUser = asyncHandler(async(req, res, next) => {
   }
 });
 
-
 // @desc    Login user
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = passport.authenticate('local', {
     failureRedirect: '/api/users/loginFailure',  
-    successRedirect: '/api/users/loginSuccess',
-  });
+    successRedirect: '/api/users/loginSuccess'
+});
 
 // @desc    Redirect for unsuccessful login
 // @route   GET /api/users/loginFailure
 // @access  Public
 const loginFailure = (req, res, next) => {
-  console.log('FAILURE!!')
   res.status(401).json({message:'Invalid login.'});
 };
 
@@ -72,7 +67,6 @@ const loginFailure = (req, res, next) => {
 const loginSuccess = (req, res, next) => {
   res.status(200).json({message: "Login successful"});
 };
-
 
 // @desc    Get user data
 // @route   GET /api/users/me

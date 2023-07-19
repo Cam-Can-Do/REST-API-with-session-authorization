@@ -15,10 +15,8 @@ const verifyCallback = (email, password, done) => {
                 return done(null, false); }
             const isValid = validPassword(password, user.hash, user.salt);
             if (isValid) {
-                console.log("A VALID PASSWORD! ~passport.js")
                 return done(null, user);
             } else {
-                console.log("AN INVALID PASSWORD! ~passport.js")
                 return done(null, false);
             }
         })
