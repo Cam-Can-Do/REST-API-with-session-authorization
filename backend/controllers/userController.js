@@ -55,7 +55,7 @@ const registerUser = asyncHandler(async(req, res, next) => {
 // @access  Public
 const loginUser = passport.authenticate('local', {
     failureRedirect: '/api/users/login',  // TODO: Change since we can't GET login
-    successRedirect: '/api/users/me',
+    successRedirect: '/api/strs/',
   });
 
 // TODO: LOGOUT FUNCTION
@@ -65,7 +65,7 @@ const loginUser = passport.authenticate('local', {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
-    res.json({message: "My protected route!"})
+    res.json({message: req.user})
 })
 
 module.exports = {

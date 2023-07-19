@@ -47,6 +47,7 @@ app.use(passport.session());
 
 // Import routes
 app.use('/api/users', require('./routes/userRouter'));
+app.use('/api/strs', require('./routes/strRouter'));
 
 // Start the server
 app.listen(port, () => console.log(`Server started on port ${port}`))
