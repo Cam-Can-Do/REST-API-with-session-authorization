@@ -15,8 +15,8 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, 'Password salt was not generated']
     },
-    admin: {
-      type: Boolean
+    consecFailedLogins: {
+      type: Number
     }
   },
   {

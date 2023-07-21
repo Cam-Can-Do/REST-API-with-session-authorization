@@ -1,6 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/userModel')
+const asyncHandler = require('express-async-handler')
 const validPassword = require('../lib/passwordUtils').validPassword;
 
 const customFields = {
@@ -8,22 +9,26 @@ const customFields = {
     passwordField: 'password'
 };
 
-const verifyCallback = (email, password, done) => {
-    User.findOne({ email })
-        .then((user) => {
-            if (!user) { 
-                return done(null, false); }
-            const isValid = validPassword(password, user.hash, user.salt);
-            if (isValid) {
-                return done(null, user);
-            } else {
-                return done(null, false);
-            }
-        })
-        .catch((err) => {   
-            done(err);
-        });
-}
+const verifyCallback = asyncHandler(async(email, password, done) => {
+    const user = await User.findOne({email})
+    // No user registered with inputted email.
+    if (!user) { 
+        return done(null, false);
+    }
+    const isValid = validPassword(password, user.hash, user.salt);
+    // Successful login.
+    if (isValid) {
+        user.consecFailedLogins = 0;
+        user.save();
+        return done(null, user);
+    // Failed login.
+    } else { 
+        user.consecFailedLogins++;
+        user.save();
+        return done(null, false);
+    }
+})
+
 const strategy  = new LocalStrategy(customFields, verifyCallback);
 
 passport.use(strategy);

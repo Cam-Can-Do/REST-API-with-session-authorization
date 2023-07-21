@@ -35,6 +35,7 @@ const registerUser = asyncHandler(async(req, res, next) => {
       email,
       hash,
       salt,
+      consecFailedLogins:0
   });
 
   try {
