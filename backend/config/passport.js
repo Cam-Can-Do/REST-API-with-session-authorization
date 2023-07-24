@@ -1,5 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/userModel')
 const asyncHandler = require('express-async-handler')
 const validPassword = require('../lib/passwordUtils').validPassword;
@@ -29,9 +30,9 @@ const verifyCallback = asyncHandler(async(email, password, done) => {
     }
 })
 
-const strategy  = new LocalStrategy(customFields, verifyCallback);
+const local_strategy  = new LocalStrategy(customFields, verifyCallback);
 
-passport.use(strategy);
+passport.use(local_strategy);
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -44,3 +45,4 @@ passport.deserializeUser((userId, done) => {
         })
         .catch(err => done(err))
 });
+
