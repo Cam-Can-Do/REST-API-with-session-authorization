@@ -3,6 +3,7 @@ const session = require('express-session')
 var passport = require('passport')
 require('./config/passport');
 const { errorHandler } = require('./middleware/errorMiddleware');
+const mongoSanitize = require('express-mongo-sanitize');
 const dotenv = require('dotenv').config()
 const connectDB = require('./config/db');
 const MongoDBStore = require('connect-mongodb-session')(session)
@@ -18,6 +19,9 @@ const sessionStore = new MongoDBStore({
 
 // Declare and set up express instance.
 const app = express()
+
+// Sanitize user inputs 
+app.use(mongoSanitize());
 app.use(express.urlencoded({extended: false}));
 // app.set('view-engine', 'ejs')
 app.use(errorHandler);
@@ -43,6 +47,7 @@ app.use(
 // Passport initizilaization for resource authorization.
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 // Import routes
 app.use('/api/users', require('./routes/userRouter'));
